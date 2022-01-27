@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReadingIsGood.Infrastructure.Data;
 
 namespace ReadingIsGood.Infrastructure.Migrations
 {
     [DbContext(typeof(ReadingIsGoodDBContext))]
-    partial class ReadingIsGoodDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220127143822_addIdentity")]
+    partial class addIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,21 +216,20 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasMaxLength(200)
+                    b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Password")
-                        .HasMaxLength(500)
+                        .IsRequired()
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Customers");
                 });
@@ -282,15 +283,6 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ReadingIsGood.Core.DBEntities.Customer", b =>
-                {
-                    b.HasOne("ReadingIsGood.Core.DBEntities.Authentication.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.Navigation("ApplicationUser");
                 });
 #pragma warning restore 612, 618
         }

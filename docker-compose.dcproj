@@ -3,7 +3,7 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>c858dbe1-af4c-4ab8-a318-655aff79e7be</ProjectGuid>
+    <ProjectGuid>a6534127-fab7-4596-941c-cfd2ab544d96</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>readingisgood.web</DockerServiceName>

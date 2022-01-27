@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ReadingIsGood.Core.DBEntities;
 using ReadingIsGood.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace ReadingIsGood.Web.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
-            var s = _customerService.Add().Result;
+            //var s = _customerService.Add().Result;
             
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -42,6 +43,18 @@ namespace ReadingIsGood.Web.Controllers
                 Summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [HttpGet("adnan")]
+        public IEnumerable<Customer> adnan()
+        {
+            return (_customerService.ListOfCustomers()).Result.ToList().ToArray();
+        }
+
+        [HttpGet("add")]
+        public IEnumerable<Customer> add()
+        {
+            return (_customerService.ListOfCustomers()).Result.ToList().ToArray();
         }
     }
 }
