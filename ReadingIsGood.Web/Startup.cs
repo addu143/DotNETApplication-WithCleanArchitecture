@@ -93,9 +93,10 @@ namespace ReadingIsGood.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ReadingIsGoodDBContext dataContext)
         {
+           
             //if (env.IsDevelopment())
             //{
-                app.UseDeveloperExceptionPage();
+            app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ReadingIsGood.Web v1"));
             //}
@@ -114,7 +115,6 @@ namespace ReadingIsGood.Web
 
             dataContext.Database.Migrate();
 
-            new RegisterAutoMapperEntities();
         }
 
     }

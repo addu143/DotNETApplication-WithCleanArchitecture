@@ -1,4 +1,5 @@
-﻿using ReadingIsGood.Core.DBEntities;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using ReadingIsGood.Core.DBEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace ReadingIsGood.Core.Data
 {
     public interface IRepository<T> where T : BaseEntity
     {
+        IQueryable<T> Table { get; }
+
         Task<T> AddAsync(T entity, CancellationToken cancellationToken = default(CancellationToken));
 
         Task UpdateAsync(T entity, CancellationToken cancellationToken = default(CancellationToken));
@@ -23,6 +26,10 @@ namespace ReadingIsGood.Core.Data
         Task<List<T>> ListAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        IDbContextTransaction BeginTransaction();
+       
+        
 
     }
 }

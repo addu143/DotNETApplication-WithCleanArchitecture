@@ -13,4 +13,13 @@ namespace ReadingIsGood.Web.EnpointModel
         [MinLength(6)]
         public string Password { get; set; }
     }
+
+    public class CustomerLoginRequest
+    {
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [MinLength(6)]
+        public string Password { get; set; }
+    }
 }

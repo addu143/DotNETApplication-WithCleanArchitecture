@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReadingIsGood.Core.DBEntities;
+using System;
 using System.Net;
 
 namespace ReadingIsGood.Web.EnpointModel
@@ -9,29 +10,26 @@ namespace ReadingIsGood.Web.EnpointModel
         public string Message { get; set; }
         public dynamic Result { get; set; }        
 
-        public static ResponseGeneric Success(string message = "Successfull", dynamic result = null) 
+        public ResponseGeneric Success(string message = "Successfull", dynamic result = null, Log log=null) 
         {
             return new ResponseGeneric()
             {
                 Message = message,
                 Result = result,
-
-                //TODO Logging ID:
-                Code = Convert.ToInt16(HttpStatusCode.OK).ToString()
+                Code = log != null ? log.Id.ToString() : Convert.ToInt16(HttpStatusCode.OK).ToString()
             };
           
         }
         
-        public ResponseGeneric Error(string message= "Something went wrong", dynamic result = null) 
+        public ResponseGeneric Error(string message= "Something went wrong", dynamic result = null, Log log = null) 
         {
             return new ResponseGeneric()
             {
                 Message = message,
                 Result = result,
-
-                //TODO Logging ID:
-                Code = Convert.ToInt16(HttpStatusCode.BadRequest).ToString()
-        };            
+                Code = log != null ? log.Id.ToString() : Convert.ToInt16(HttpStatusCode.BadRequest).ToString()
+            };
+            
         }
 
 

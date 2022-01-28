@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReadingIsGood.Infrastructure.Data;
 
 namespace ReadingIsGood.Infrastructure.Migrations
 {
     [DbContext(typeof(ReadingIsGoodDBContext))]
-    partial class ReadingIsGoodDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220128110037_addOrdersTables")]
+    partial class addOrdersTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -222,41 +224,16 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Password")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
                     b.ToTable("Customers");
-                });
-
-            modelBuilder.Entity("ReadingIsGood.Core.DBEntities.Log", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedOnUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FullMessage")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("LogLevelId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("PageUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ReferrerUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ShortMessage")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("ReadingIsGood.Core.DBEntities.Order", b =>
@@ -271,7 +248,7 @@ namespace ReadingIsGood.Infrastructure.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("Total")
+                    b.Property<float>("Total")
                         .HasColumnType("REAL");
 
                     b.HasKey("Id");
@@ -287,27 +264,19 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("Price")
+                    b.Property<float>("Price")
                         .HasColumnType("REAL");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("INTEGER");
+                    b.Property<float>("Quantity")
+                        .HasColumnType("REAL");
 
                     b.Property<string>("SKU")
                         .HasColumnType("TEXT");
 
-                    b.Property<double>("SubTotal")
-                        .HasColumnType("REAL");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -345,58 +314,6 @@ namespace ReadingIsGood.Infrastructure.Migrations
                     b.HasIndex("ProductCategoryId");
 
                     b.ToTable("Products");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "IPhone",
-                            Price = 1100f,
-                            ProductCategoryId = 1,
-                            Quantity = 100,
-                            SKU = "IPP",
-                            Sold = 0
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Samsung A20",
-                            Price = 2000f,
-                            ProductCategoryId = 1,
-                            Quantity = 200,
-                            SKU = "S20",
-                            Sold = 0
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Guitar",
-                            Price = 500f,
-                            ProductCategoryId = 1,
-                            Quantity = 300,
-                            SKU = "GUI",
-                            Sold = 0
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Microsoft Keyboard",
-                            Price = 200f,
-                            ProductCategoryId = 1,
-                            Quantity = 50,
-                            SKU = "MK",
-                            Sold = 0
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Washing Machine",
-                            Price = 877f,
-                            ProductCategoryId = 1,
-                            Quantity = 50,
-                            SKU = "WMA",
-                            Sold = 0
-                        });
                 });
 
             modelBuilder.Entity("ReadingIsGood.Core.DBEntities.ProductCategory", b =>
@@ -412,13 +329,6 @@ namespace ReadingIsGood.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ProductCategories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Electronics"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -494,19 +404,11 @@ namespace ReadingIsGood.Infrastructure.Migrations
 
             modelBuilder.Entity("ReadingIsGood.Core.DBEntities.OrderItem", b =>
                 {
-                    b.HasOne("ReadingIsGood.Core.DBEntities.Order", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ReadingIsGood.Core.DBEntities.Product", "Product")
                         .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Order");
 
                     b.Navigation("Product");
                 });
@@ -531,11 +433,6 @@ namespace ReadingIsGood.Infrastructure.Migrations
             modelBuilder.Entity("ReadingIsGood.Core.DBEntities.Customer", b =>
                 {
                     b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("ReadingIsGood.Core.DBEntities.Order", b =>
-                {
-                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("ReadingIsGood.Core.DBEntities.Product", b =>

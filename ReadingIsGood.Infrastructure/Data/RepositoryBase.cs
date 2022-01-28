@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using ReadingIsGood.Core.DBEntities;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,22 @@ namespace ReadingIsGood.Infrastructure.Data
     public abstract class RepositoryBase<T> where T : BaseEntity
     {
         private readonly DbContext dbContext;
+        private DbSet<T> _entities;
 
         public RepositoryBase(DbContext _dbContext)
         {
             dbContext = _dbContext;
+        }
+        public virtual IQueryable<T> Table => Entities;
+        protected virtual DbSet<T> Entities
+        {
+            get
+            {
+                if (_entities == null)
+                    _entities = dbContext.Set<T>();
+
+                return _entities;
+            }
         }
         public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
         {
@@ -53,6 +66,17 @@ namespace ReadingIsGood.Infrastructure.Data
         public virtual async Task<List<T>> ListAsync(CancellationToken cancellationToken = default)
         {
             return await dbContext.Set<T>().ToListAsync(cancellationToken);
-        }        
+        }
+
+        public IDbContextTransaction BeginTransaction() 
+        {
+            return dbContext.Database.BeginTransaction();
+        }
+
+
+       
+
+
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ReadingIsGood.Core.Data;
 using ReadingIsGood.Core.DBEntities;
 using ReadingIsGood.Core.DBEntities.Authentication;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ReadingIsGood.Core.Services
@@ -38,19 +40,19 @@ namespace ReadingIsGood.Core.Services
             return await _userManager.FindByNameAsync(userName);
         }
 
-        public async Task<ApplicationUser> FindByEmailAsync(string email)
+        public async Task<ApplicationUser> FindByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
-            return await _userManager.FindByEmailAsync(email);
+            return await _userManager.Users.Where(m => m.Email == email).Include(m => m.Customer).FirstOrDefaultAsync(cancellationToken);            
         }
 
-        public async Task<Customer> Add(Customer customer)
+        public async Task<Customer> AddAsync(Customer customer, CancellationToken cancellationToken = default)
         {
-            return await _repository.AddAsync(customer);
+            return await _repository.AddAsync(customer, cancellationToken);
         }
 
-        public async Task<List<Customer>> ListOfCustomers()
+        public async Task<List<Customer>> ListOfCustomersAsync(CancellationToken cancellationToken = default)
         {
-            return await _repository.ListAsync();
+            return await _repository.ListAsync(cancellationToken);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using ReadingIsGood.Core.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using ReadingIsGood.Core.Data;
 using ReadingIsGood.Core.DBEntities;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,6 @@ namespace ReadingIsGood.Infrastructure.Data
         {
 
         }
+
     }
 }

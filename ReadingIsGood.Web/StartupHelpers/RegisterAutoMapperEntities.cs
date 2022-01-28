@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ReadingIsGood.Core.DBEntities;
+using ReadingIsGood.Web.EnpointModel;
 using ReadingIsGood.Web.Model;
 
 namespace ReadingIsGood.Web
@@ -9,6 +10,11 @@ namespace ReadingIsGood.Web
         public RegisterAutoMapperEntities()
         {
             CreateMap<Customer, CustomerModel>();
+            CreateMap<CreateProductCategoryRequest, ProductCategory>();
+            CreateMap<CreateProductRequest, Product>();
+            CreateMap<Product, ProductResponse>();
+
+            
         }
     }
 

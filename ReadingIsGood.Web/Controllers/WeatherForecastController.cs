@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ReadingIsGood.Core.DBEntities;
 using ReadingIsGood.Core.Interfaces;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace ReadingIsGood.Web.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
@@ -48,13 +50,13 @@ namespace ReadingIsGood.Web.Controllers
         [HttpGet("adnan")]
         public IEnumerable<Customer> adnan()
         {
-            return (_customerService.ListOfCustomers()).Result.ToList().ToArray();
+            return (_customerService.ListOfCustomersAsync()).Result.ToList().ToArray();
         }
 
         [HttpGet("add")]
         public IEnumerable<Customer> add()
         {
-            return (_customerService.ListOfCustomers()).Result.ToList().ToArray();
+            return (_customerService.ListOfCustomersAsync()).Result.ToList().ToArray();
         }
     }
 }
