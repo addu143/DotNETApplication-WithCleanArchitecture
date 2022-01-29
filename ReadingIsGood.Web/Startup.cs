@@ -27,7 +27,6 @@ namespace ReadingIsGood.Web
         {
             Configuration = configuration;
         }
-
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -77,7 +76,7 @@ namespace ReadingIsGood.Web
 
             //Configure Dependencies
             new DependencyRegistrar(services).ConfigureDependencies();
-            
+
             services.AddControllers();
 
             services.AddSwaggerGen(c =>
@@ -86,28 +85,19 @@ namespace ReadingIsGood.Web
             });
 
             services.AddAutoMapper(typeof(Startup));
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ReadingIsGoodDBContext dataContext)
         {
-           
-            //if (env.IsDevelopment())
-            //{
             app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ReadingIsGood.Web v1"));
-            //}
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ReadingIsGood.Web v1"));
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -119,5 +109,5 @@ namespace ReadingIsGood.Web
 
     }
 
-    
+
 }
