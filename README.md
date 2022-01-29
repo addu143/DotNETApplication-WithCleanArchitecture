@@ -33,6 +33,7 @@ https://readingisgood.azurewebsites.net/swagger/index.html
 5. User will pass the token, and Order number and can see details of an Order https://readingisgood.azurewebsites.net/api/Order/getCustomerOrderDetail <br>
 6. User will pass the token and can update any Product https://readingisgood.azurewebsites.net/api/Product/updateProduct <br>
 7. User will get all the Products available https://readingisgood.azurewebsites.net/api/Product/getProducts <br>
+8. User can see the Logs without authentication at https://readingisgood.azurewebsites.net/api/Log/getAll
 ### All Request/Request schemas can be accessible on: https://readingisgood.azurewebsites.net/swagger/index.html
 
 
