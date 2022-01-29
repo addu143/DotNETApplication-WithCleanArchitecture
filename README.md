@@ -4,8 +4,7 @@ Simple online books web api app
 
 ## Brief explanation of Design <br><br>
 This application build on the Clean Architecture, hence its layers are loosely copuples and can be tested independendly. 
-and later we can change the database e.g. EF/SQL to any other DB provider, and can take advantages of other benefits available.
-I believe still its need some imrovements, suggestions are always open :)
+and later we can change the database e.g. EF/SQL to any other DB provider, and can take advantages of other benefits.
 
 ## Concurrency check
 Concurrency check has implemented while managing the Stock.
