@@ -19,6 +19,7 @@ In addition, Concurrency check has implemented while managing the Stock.
 5. SQLlite
 6. AutoMapper
 7. Swagger
+8. Custom DB logging
 
 ## Access Endpoints
 Application is deployed on Azure on the following link and APIs can be tested on. <br> But you need to Register first and get a token to access other APIs endpoints :)
