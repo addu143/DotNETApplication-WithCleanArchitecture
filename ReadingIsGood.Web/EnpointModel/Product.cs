@@ -28,7 +28,7 @@ namespace ReadingIsGood.Web.EnpointModel
         public int Sold { get; set; }
 
         [Required]
-        public float Price { get; set; }
+        public double Price { get; set; }
     }
 
     public class ProductCategoryResponse
@@ -43,7 +43,24 @@ namespace ReadingIsGood.Web.EnpointModel
         public string SKU { get; set; }
         public int Quantity { get; set; }
         public int Sold { get; set; }
-        public float Price { get; set; }
+        public double Price { get; set; }
+        public int AvailableQuantity { get; set; }
+
+    }
+
+    public class UpdateProductRequest
+    {
+        [Range(0, int.MaxValue, ErrorMessage = "Please enter valid integer Number")]
+        public int ProductId { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "Please enter valid integer Number")]
+        public int Quantity { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Please enter valid Number")]
+        public double Price { get; set; }
     }
 
 }

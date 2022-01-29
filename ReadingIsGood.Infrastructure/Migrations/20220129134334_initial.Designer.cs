@@ -9,8 +9,8 @@ using ReadingIsGood.Infrastructure.Data;
 namespace ReadingIsGood.Infrastructure.Migrations
 {
     [DbContext(typeof(ReadingIsGoodDBContext))]
-    [Migration("20220128185854_changeOrderOrderItemsa")]
-    partial class changeOrderOrderItemsa
+    [Migration("20220129134334_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -273,6 +273,9 @@ namespace ReadingIsGood.Infrastructure.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("INTEGER");
 
+                    b.Property<double>("Total")
+                        .HasColumnType("REAL");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
@@ -301,6 +304,9 @@ namespace ReadingIsGood.Infrastructure.Migrations
                     b.Property<string>("SKU")
                         .HasColumnType("TEXT");
 
+                    b.Property<double>("SubTotal")
+                        .HasColumnType("REAL");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
@@ -316,11 +322,14 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("AvailableQuantity")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.Property<float>("Price")
+                    b.Property<double>("Price")
                         .HasColumnType("REAL");
 
                     b.Property<int>("ProductCategoryId")
@@ -328,6 +337,11 @@ namespace ReadingIsGood.Infrastructure.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("BLOB");
 
                     b.Property<string>("SKU")
                         .HasMaxLength(10)
@@ -346,8 +360,9 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
+                            AvailableQuantity = 100,
                             Name = "IPhone",
-                            Price = 1100f,
+                            Price = 1100.0,
                             ProductCategoryId = 1,
                             Quantity = 100,
                             SKU = "IPP",
@@ -356,8 +371,9 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
+                            AvailableQuantity = 200,
                             Name = "Samsung A20",
-                            Price = 2000f,
+                            Price = 2000.0,
                             ProductCategoryId = 1,
                             Quantity = 200,
                             SKU = "S20",
@@ -366,8 +382,9 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         new
                         {
                             Id = 3,
+                            AvailableQuantity = 300,
                             Name = "Guitar",
-                            Price = 500f,
+                            Price = 500.0,
                             ProductCategoryId = 1,
                             Quantity = 300,
                             SKU = "GUI",
@@ -376,8 +393,9 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
+                            AvailableQuantity = 50,
                             Name = "Microsoft Keyboard",
-                            Price = 200f,
+                            Price = 200.0,
                             ProductCategoryId = 1,
                             Quantity = 50,
                             SKU = "MK",
@@ -386,8 +404,9 @@ namespace ReadingIsGood.Infrastructure.Migrations
                         new
                         {
                             Id = 5,
+                            AvailableQuantity = 50,
                             Name = "Washing Machine",
-                            Price = 877f,
+                            Price = 877.0,
                             ProductCategoryId = 1,
                             Quantity = 50,
                             SKU = "WMA",

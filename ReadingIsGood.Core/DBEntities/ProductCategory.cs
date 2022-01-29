@@ -11,7 +11,6 @@ namespace ReadingIsGood.Core.DBEntities
     {
         [MaxLength(500)]
         public string Name { get; set; }
-
         public virtual List<Product> Products { get; set; }
     }
 }

@@ -1,35 +1,40 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using ReadingIsGood.Core.DBEntities;
 using ReadingIsGood.Core.Interfaces;
 using ReadingIsGood.Web.EnpointModel;
+using ReadingIsGood.Web.Helpers;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ReadingIsGood.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrderController : ControllerBase
+    [Authorize]
+    public class OrderController : BaseController
     {
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly ILogService _logService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        private readonly ResponseGeneric _responseGeneric;
-        
+        private readonly IResponseGeneric _responseGeneric;
+        private readonly ICustomerService _customerService;
 
-        public OrderController(        
+        public OrderController(
             IMapper mapper,
             IConfiguration configuration,
-            ResponseGeneric responseGeneric,
+            IResponseGeneric responseGeneric,
             IProductService productService,
             IOrderService orderService,
-            ILogService logService)
+            ILogService logService,
+            ICustomerService customerService) : base(customerService)
         {
             _mapper = mapper;
             _configuration = configuration;
@@ -37,6 +42,7 @@ namespace ReadingIsGood.Web.Controllers
             _productService = productService;
             _orderService = orderService;
             _logService = logService;
+            _customerService = customerService;
         }
 
         [HttpPost("create")]
@@ -46,66 +52,64 @@ namespace ReadingIsGood.Web.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    #region VALIDATIONS
+                    #region VALIDATIONS AND BASIC DATA
+                    //Get current user:
+                    var currentUser = GetCurrentUser();
+
                     //Group the records and sum quantity if dupplicate                    
                     var groupedRequestData = orderRequest.Products.ToList()
                         .GroupBy(m => m.ProductId)
-                        .Select(m => new {
+                        .Select(m => new
+                        {
                             ProductId = m.Key,
                             Quantity = m.Sum(x => x.Quantity)
                         });
 
                     List<Product> listOfSelectedProducts = new List<Product>();
-                    foreach (var item in groupedRequestData)
+                    foreach (var requestData in groupedRequestData)
                     {
                         //Verify product exist
-                        var product = await _productService.GetByIdAsync(item.ProductId);
-                        if (product == null) 
+                        var product = await _productService.GetByIdAsync(requestData.ProductId);
+                        if (product == null)
                             return BadRequest(_responseGeneric.Error("Product not exist"));
 
                         //Quantity Check
-                        if (product.AvailableQuantity <= 0) 
-                            return BadRequest(_responseGeneric.Error("Sold out, Check back later"));
+                        if (requestData.Quantity > product.AvailableQuantity)
+                            return BadRequest(_responseGeneric.Error(String.Format("Product # {0} not available, Available Quantity = {1}", product.Id, product.AvailableQuantity)));
 
                         listOfSelectedProducts.Add(product);
                     }
                     #endregion
 
                     #region OPERATIONS
-                    //Map and Create Product
-
-                    //TODO real CustomerID
                     Order order = new Order();
-                    order.CustomerId = 1;
+                    order.CustomerId = currentUser.Customer.Id;
+                    order.OrderStatus = OrderStatus.Active;
                     order.OrderItems = new List<OrderItem>();
 
                     foreach (Product prod in listOfSelectedProducts)
                     {
                         var requestData = groupedRequestData.Where(m => m.ProductId == prod.Id).FirstOrDefault();
-                        OrderItem orderItem = new OrderItem() { 
+                        OrderItem orderItem = new OrderItem()
+                        {
                             Price = prod.Price,
                             Product = prod,
                             Quantity = requestData.Quantity,
-                            SKU = prod.SKU                            
+                            SubTotal = prod.Price * requestData.Quantity,
+                            SKU = prod.SKU
                         };
                         order.OrderItems.Add(orderItem);
                     }
-                    
-                    //Save to DB:
-                    _orderService.AddAsync(order).GetAwaiter().GetResult();
+                    order.Total = order.OrderItems.Sum(t => t.SubTotal);
 
-                    //Update Product Quantity
-                    foreach (Product prod in listOfSelectedProducts)
-                    {
-                        var requestData = groupedRequestData.Where(m => m.ProductId == prod.Id).FirstOrDefault();
-                        prod.Sold += requestData.Quantity;
-                        await _productService.UpdateAsync(prod);
-                    }
+                    //Save to DB and also handling the Concurrency issue:
+                    await _orderService.UpdateOrderAndStock(order);
                     #endregion
 
                     //Logging
-                    var logDetail = _logService.InsertLog(LogLevel.Information, "CreateOrder").Result;
-                    return Ok(_responseGeneric.Success(log: logDetail));
+                    await _logService.InsertLog(LogLevel.Information, "Order has successfully created", JsonSerializer.Serialize(orderRequest));
+
+                    return Ok(_responseGeneric.Success("Order has successfully created"));
                 }
                 else
                 {
@@ -115,104 +119,52 @@ namespace ReadingIsGood.Web.Controllers
             }
             catch (Exception ex)
             {
-                //Logging
+                //Logging error
                 Log logDetail = _logService.InsertLog(LogLevel.Error, "CreateOrder", ex.ToString()).Result;
                 return BadRequest(_responseGeneric.Error(result: ex.Message.ToString(), log: logDetail));
             }
         }
 
-        //    [HttpPost("create")]
-        //    public async Task<IActionResult> Create([FromBody] OrderNewRequest Model)
-        //    {
-        //        try
-        //        {
-        //            if (ModelState.IsValid)
-        //            {
-        //                #region VALIDATIONS
-        //                var isAlreadyExist = await _customerService.FindByEmailAsync(cusModel.Email) != null;
-        //                if (isAlreadyExist)
-        //                {
-        //                    return BadRequest(_responseGeneric.Error("User already exist"));
-        //                }
-        //                #endregion
+        [HttpGet("getCustomerOrders")]
+        public async Task<IActionResult> GetCustomerOrders()
+        {
+            try
+            {
+                //Logging
+                await _logService.InsertLog(LogLevel.Information, "GetCustomerOrders");
 
-        //                #region OPERATIONS
-        //                ApplicationUser user = new ApplicationUser()
-        //                {
-        //                    Email = cusModel.Email,
-        //                    UserName = cusModel.Email,
-        //                    SecurityStamp = Guid.NewGuid().ToString()                        
-        //                };
+                var currentUser = GetCurrentUser();
+                var orders = await _orderService.GetCustomerOrders(currentUser.Customer.Id);
+                var orderMapp = _mapper.Map<List<OrderListResponse>>(orders);
+                return Ok(_responseGeneric.Success(result: orderMapp));
+            }
+            catch (Exception ex)
+            {
+                //Logging error
+                Log logDetail = _logService.InsertLog(LogLevel.Error, "GetCustomerOrders", ex.ToString()).Result;
+                return BadRequest(_responseGeneric.Error(result: ex.Message.ToString(), log: logDetail));
+            }
+        }
 
-        //                var result = await _customerService.CreateAsync(user, cusModel.Password);
-        //                if (!result.Succeeded)
-        //                {
-        //                    List<string> errors = new List<string>();
-        //                    if (result.Errors != null)
-        //                    {
-        //                        foreach (var error in result.Errors)
-        //                        {
-        //                            errors.Add(error.Description.ToString());
-        //                        }
-        //                    }
+        [HttpGet("getCustomerOrderDetail")]
+        public async Task<IActionResult> GetCustomerOrderDetail([FromBody] OrderDetailRequest orderRequest)
+        {
+            try
+            {
+                //Logging
+                await _logService.InsertLog(LogLevel.Information, "GetCustomerOrderDetail");
 
-        //                    return BadRequest(_responseGeneric.Error(result: errors));
-
-        //                }
-
-        //                //Create an entry in Customer Table along with ASPNET Identity tables:
-        //                await _customerService.AddAsync(new Customer()
-        //                {
-        //                    ApplicationUser = user,
-        //                    Name = cusModel.Name
-        //                });
-
-        //                return Ok(_responseGeneric.Success());
-        //                #endregion
-        //            }
-        //            else
-        //            {
-        //                return BadRequest(_responseGeneric.Error(result: ModelState));
-
-        //            }
-
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest();
-        //        }
-        //    }
-
-        //    [HttpPost]
-        //    [Route("login")]
-        //    public async Task<IActionResult> Login([FromBody] CustomerLoginRequest loginModel)
-        //    {
-        //        var user = await _customerService.FindByEmailAsync(loginModel.Email);
-        //        if (user != null && await _customerService.CheckPasswordAsync(user, loginModel.Password))
-        //        {
-        //            var authClaims = new List<Claim>
-        //            {
-        //                new Claim(ClaimTypes.Email, user.Email),
-        //                new Claim("CustomerID", user.Customer.Id.ToString()),
-        //                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        //            };              
-
-        //            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
-
-        //            var token = new JwtSecurityToken(
-        //                issuer: _configuration["JWT:ValidIssuer"],
-        //                audience: _configuration["JWT:ValidAudience"],
-        //                expires: DateTime.Now.AddHours(3),
-        //                claims: authClaims,
-        //                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-        //                );
-
-        //            return Ok(_responseGeneric.Success(result: new{
-        //                token = new JwtSecurityTokenHandler().WriteToken(token),
-        //                expiration = token.ValidTo
-        //            }));
-        //        }
-        //        return Unauthorized(_responseGeneric.Error("Wrong credentials"));
-        //    }
+                var currentUser = GetCurrentUser();
+                var order = await _orderService.GetCustomerOrderDetail(currentUser.Customer.Id, orderRequest.OrderId);
+                var orderMapp = _mapper.Map<OrderDetailResponse>(order);
+                return Ok(_responseGeneric.Success(result: orderMapp));
+            }
+            catch (Exception ex)
+            {
+                //Logging error
+                Log logDetail = _logService.InsertLog(LogLevel.Error, "GetCustomerOrderDetail", ex.ToString()).Result;
+                return BadRequest(_responseGeneric.Error(result: ex.Message.ToString(), log: logDetail));
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@
         public virtual Product Product { get; set; }
         public int OrderId { get; set; }
         public virtual Order Order { get; set; }
-        public double SubTotal { get { return this.Price * this.Quantity; } set { } }
+        public double SubTotal { get; set; }
 
     }
 

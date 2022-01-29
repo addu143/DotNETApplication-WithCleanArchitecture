@@ -15,5 +15,6 @@ namespace ReadingIsGood.Core.Interfaces
         Task<List<Product>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<List<ProductCategory>> GetCategoryAllAsync(CancellationToken cancellationToken = default);
         Task<ProductCategory> AddCategoryAsync(ProductCategory productCategory, CancellationToken cancellationToken = default);
+        Task<bool> RecheckAndUpdateStock(Product product, int askQuantity);
     }
 }

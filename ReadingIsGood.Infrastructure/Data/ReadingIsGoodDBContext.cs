@@ -34,15 +34,13 @@ namespace ReadingIsGood.Infrastructure.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            
-
             JToken jAppSettings = JToken.Parse(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "appsettings.json")));
             string defaultString = jAppSettings["ConnectionString"]["DefaultConnection"].Value<string>();
             //optionsBuilder.UseSqlServer(defaultString);
             optionsBuilder.UseSqlite(defaultString);
         }
 
- 
+
     }
 
 

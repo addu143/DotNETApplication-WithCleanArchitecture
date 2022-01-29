@@ -5,6 +5,7 @@ using ReadingIsGood.Core.Interfaces;
 using ReadingIsGood.Core.Services;
 using ReadingIsGood.Infrastructure.Data;
 using ReadingIsGood.Web.EnpointModel;
+using ReadingIsGood.Web.Helpers;
 using System;
 
 namespace ReadingIsGood.Web
@@ -32,7 +33,7 @@ namespace ReadingIsGood.Web
             _services.AddScoped<IOrderService, OrderService>();
             _services.AddScoped<ILogService, LogService>();
 
-            _services.AddTransient<ResponseGeneric>();
+            _services.AddScoped<IResponseGeneric, ResponseGeneric>();
 
 
 

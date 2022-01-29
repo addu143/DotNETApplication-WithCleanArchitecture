@@ -12,5 +12,8 @@ namespace ReadingIsGood.Core.Interfaces
         Task DeleteAsync(Order order, CancellationToken cancellationToken = default);
         Task<Order> GetByIdAsync(int id, CancellationToken cancellationToken = default);
         Task<List<Order>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<List<Order>> GetCustomerOrders(int customerId, CancellationToken cancellationToken = default);
+        Task<Order> UpdateOrderAndStock(Order order, CancellationToken cancellationToken = default);
+        Task<Order> GetCustomerOrderDetail(int customerId, int orderId, CancellationToken cancellationToken = default);
     }
 }

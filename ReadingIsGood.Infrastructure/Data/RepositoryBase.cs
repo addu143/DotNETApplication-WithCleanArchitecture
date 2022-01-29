@@ -58,25 +58,19 @@ namespace ReadingIsGood.Infrastructure.Data
         public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return await dbContext.SaveChangesAsync(cancellationToken);
-        } 
+        }
         public virtual async Task<T> GetByIdAsync<TId>(TId id, CancellationToken cancellationToken = default)
         {
             return await dbContext.Set<T>().FindAsync(new object[] { id }, cancellationToken: cancellationToken);
-        }        
+        }
         public virtual async Task<List<T>> ListAsync(CancellationToken cancellationToken = default)
         {
             return await dbContext.Set<T>().ToListAsync(cancellationToken);
         }
 
-        public IDbContextTransaction BeginTransaction() 
+        public IDbContextTransaction BeginTransaction()
         {
             return dbContext.Database.BeginTransaction();
         }
-
-
-       
-
-
-
     }
 }

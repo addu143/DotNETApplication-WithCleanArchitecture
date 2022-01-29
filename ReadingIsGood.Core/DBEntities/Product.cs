@@ -19,18 +19,21 @@ namespace ReadingIsGood.Core.DBEntities
         
         public int Sold { get; set; }
 
-        public float Price { get; set; }
+        public double Price { get; set; }
 
         public virtual List<OrderItem> OrderItems { get; set; }
-
-        [NotMapped]
+               
         public int AvailableQuantity
         {
             get
             {
-                return Quantity - Sold; 
-            }            
+                return Quantity - Sold;
+            }
+            set { }
         }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
 
     }
 

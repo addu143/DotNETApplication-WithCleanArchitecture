@@ -22,14 +22,12 @@ namespace ReadingIsGood.Core.Data
         Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default(CancellationToken));
 
         Task<T?> GetByIdAsync<TId>(TId id, CancellationToken cancellationToken = default(CancellationToken)) where TId : notnull;
-           
+
         Task<List<T>> ListAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         IDbContextTransaction BeginTransaction();
-       
-        
 
     }
 }

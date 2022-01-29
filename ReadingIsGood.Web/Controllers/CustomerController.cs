@@ -6,16 +6,14 @@ using ReadingIsGood.Core.DBEntities;
 using ReadingIsGood.Core.DBEntities.Authentication;
 using ReadingIsGood.Core.Interfaces;
 using ReadingIsGood.Web.EnpointModel;
-using ReadingIsGood.Web.Model;
+using ReadingIsGood.Web.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReadingIsGood.Web.Controllers
 {
@@ -26,16 +24,21 @@ namespace ReadingIsGood.Web.Controllers
         private readonly ICustomerService _customerService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        private ResponseGeneric _responseGeneric = new ResponseGeneric();
+        private readonly IResponseGeneric _responseGeneric;
+        private readonly ILogService _logService;
+
         public CustomerController(
             ICustomerService customerService,
             IMapper mapper,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IResponseGeneric responseGeneric,
+            ILogService logService)
         {
             _customerService = customerService;
             _mapper = mapper;
             _configuration = configuration;
-            
+            _responseGeneric = responseGeneric;
+            _logService = logService;
         }
 
         [HttpPost("register")]
@@ -45,6 +48,9 @@ namespace ReadingIsGood.Web.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    //Logging
+                    await _logService.InsertLog(LogLevel.Information, "Registering User", JsonSerializer.Serialize(cusModel));
+
                     #region VALIDATIONS
                     var isAlreadyExist = await _customerService.FindByEmailAsync(cusModel.Email) != null;
                     if (isAlreadyExist)
@@ -58,7 +64,7 @@ namespace ReadingIsGood.Web.Controllers
                     {
                         Email = cusModel.Email,
                         UserName = cusModel.Email,
-                        SecurityStamp = Guid.NewGuid().ToString()                        
+                        SecurityStamp = Guid.NewGuid().ToString()
                     };
 
                     var result = await _customerService.CreateAsync(user, cusModel.Password);
@@ -74,7 +80,7 @@ namespace ReadingIsGood.Web.Controllers
                         }
 
                         return BadRequest(_responseGeneric.Error(result: errors));
-                        
+
                     }
 
                     //Create an entry in Customer Table along with ASPNET Identity tables:
@@ -84,8 +90,13 @@ namespace ReadingIsGood.Web.Controllers
                         Name = cusModel.Name
                     });
 
+                    //Logging
+                    await _logService.InsertLog(LogLevel.Information, "Registering Success User", JsonSerializer.Serialize(cusModel));
+
                     return Ok(_responseGeneric.Success());
                     #endregion
+
+                    
                 }
                 else
                 {
@@ -104,6 +115,9 @@ namespace ReadingIsGood.Web.Controllers
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] CustomerLoginRequest loginModel)
         {
+            //Logging
+            await _logService.InsertLog(LogLevel.Information, "Try Logging", JsonSerializer.Serialize(loginModel));
+
             var user = await _customerService.FindByEmailAsync(loginModel.Email);
             if (user != null && await _customerService.CheckPasswordAsync(user, loginModel.Password))
             {
@@ -112,7 +126,7 @@ namespace ReadingIsGood.Web.Controllers
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim("CustomerID", user.Customer.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                };              
+                };
 
                 var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
@@ -124,12 +138,15 @@ namespace ReadingIsGood.Web.Controllers
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                     );
 
-                return Ok(_responseGeneric.Success(result: new{
+                return Ok(_responseGeneric.Success(result: new
+                {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     expiration = token.ValidTo
                 }));
             }
             return Unauthorized(_responseGeneric.Error("Wrong credentials"));
         }
+
+
     }
 }

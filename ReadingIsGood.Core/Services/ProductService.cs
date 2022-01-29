@@ -50,7 +50,9 @@ namespace ReadingIsGood.Core.Services
 
         public Task<List<Product>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return _repositoryProduct.ListAsync(cancellationToken);
+            return _repositoryProduct.Table
+                .Include(m => m.ProductCategory)
+                .ToListAsync();
         }
 
         public Task<List<ProductCategory>> GetCategoryAllAsync(CancellationToken cancellationToken = default)
@@ -67,6 +69,45 @@ namespace ReadingIsGood.Core.Services
         {
             return _repositoryProduct.Table.Where(m => id.Contains(m.Id)).ToListAsync();
         }
+
+        public async Task<bool> RecheckAndUpdateStock(Product product, int askQuantity)
+        {
+            bool saveFailed = false;
+            int numberOfTries = 0;         
+
+            //Update Product Quantity and also logic to handle Concorrency issues:
+            do
+            {
+                try
+                {
+                    numberOfTries++;
+
+                    //Check Again quantity
+                    if (askQuantity <= product.AvailableQuantity)
+                        product.Sold += askQuantity;
+                    else
+                        return false;
+
+                    //Update the Product
+                    await _repositoryProduct.UpdateAsync(product);
+
+                    saveFailed = false;
+                    return true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    //If concurrency issue occured
+                    saveFailed = true;
+                    product = await _repositoryProduct.GetByIdAsync(product.Id);
+                }
+
+            } while (saveFailed || numberOfTries < 5);
+
+            return false;
+            //}
+        }
+
+
 
         //public bool CheckProductQuantity(List<Product> products, CancellationToken cancellationToken = default)
         //{

@@ -1,18 +1,9 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Mvc;
 using ReadingIsGood.Core.DBEntities;
-using ReadingIsGood.Core.DBEntities.Authentication;
 using ReadingIsGood.Core.Interfaces;
-using ReadingIsGood.Web.EnpointModel;
-using ReadingIsGood.Web.Model;
+using ReadingIsGood.Web.Helpers;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -24,14 +15,13 @@ namespace ReadingIsGood.Web.Controllers
     public class LogController : ControllerBase
     {
         private readonly ILogService _logService;
-        private readonly ResponseGeneric _responseGeneric;
+        private readonly IResponseGeneric _responseGeneric;
 
         public LogController(ILogService logService,
-                    ResponseGeneric responseGeneric)
+                    IResponseGeneric responseGeneric)
         {
             _logService = logService;
             _responseGeneric = responseGeneric;
-            
         }
 
         [HttpGet("getAll")]
@@ -44,7 +34,7 @@ namespace ReadingIsGood.Web.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(_responseGeneric.Error(result: ex.ToString()));
             }
         }
     }

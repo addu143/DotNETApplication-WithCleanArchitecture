@@ -13,8 +13,15 @@ namespace ReadingIsGood.Web
             CreateMap<CreateProductCategoryRequest, ProductCategory>();
             CreateMap<CreateProductRequest, Product>();
             CreateMap<Product, ProductResponse>();
+            CreateMap<ProductCategory, ProductCategoryResponse>();
+            CreateMap<UpdateProductRequest, Product>();
 
-            
+            CreateMap<Order, OrderListResponse>();
+            CreateMap<Order, OrderDetailResponse> ();
+            CreateMap<OrderItem, OrderItemResponse>();
+
+
+
         }
     }
 
