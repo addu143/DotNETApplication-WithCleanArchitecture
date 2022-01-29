@@ -5,11 +5,11 @@ Simple online books web api app
 ## Brief explanation of Design <br><br>
 This application build on the Clean Architecture, hence its layers are loosely copuples and can be tested independendly. 
 and later we can change the database e.g. EF/SQL to any other DB provider, and can take advantages of other benefits.
+**Application is containerized and deployed on Docker Hub and consume using the Azure Services.**
 
 ## Concurrency check
 Concurrency check has implemented while managing the Stock.
 
-**Application is containerized and deployed on Docker Hub and consume using the Azure Services.**
 
 ## TechStack <br><br>
 1. .NET 5.0 Core
