@@ -1,14 +1,15 @@
 # ReadingIsGood-DotNETApplication
 
-Please see wiki for details:
-https://github.com/addu143/ReadingIsGood-DotNETApplication/wiki
+Simple online books web api app
 
 ## Brief explanation of Design <br><br>
 This application build on the Clean Architecture, hence its layers are loosely copuples and can be tested independendly. 
-and later we can change the database e.g. EF/SQL to any other DB provider. I believe still its need some imrovements, suggestions are open :)
+and later we can change the database e.g. EF/SQL to any other DB provider, and can take advantages of other benefits available.
+I believe still its need some imrovements, suggestions are always open :)
+
 In addition, Concurrency check has implemented while managing the Stock.
 
-<br><br>**Application is containerized and deployed on Docker Hub and consume using the Azure Services.**
+**Application is containerized and deployed on Docker Hub and consume using the Azure Services.**
 
 ## TechStack <br><br>
 1. .NET 5.0 Core
