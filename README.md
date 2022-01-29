@@ -7,7 +7,8 @@ This application build on the Clean Architecture, hence its layers are loosely c
 and later we can change the database e.g. EF/SQL to any other DB provider, and can take advantages of other benefits available.
 I believe still its need some imrovements, suggestions are always open :)
 
-In addition, Concurrency check has implemented while managing the Stock.
+# Concurrency check
+Concurrency check has implemented while managing the Stock.
 
 **Application is containerized and deployed on Docker Hub and consume using the Azure Services.**
 
