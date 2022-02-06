@@ -50,14 +50,14 @@ namespace ReadingIsGood.Core.Services
             return _repository.ListAsync(cancellationToken);
         }
 
-        public async Task<List<Order>> GetCustomerOrders(int customerId, CancellationToken cancellationToken = default)
+        public async Task<List<Order>> GetCustomerOrdersAsync(int customerId, CancellationToken cancellationToken = default)
         {
             return await _repository.Table
                 .Where(m => m.CustomerId == customerId)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<Order> GetCustomerOrderDetail(int customerId, int orderId, CancellationToken cancellationToken = default)
+        public async Task<Order> GetCustomerOrderDetailAsync(int customerId, int orderId, CancellationToken cancellationToken = default)
         {
             return await _repository.Table
                 .Where(m => m.CustomerId == customerId && m.Id == orderId)
@@ -67,7 +67,7 @@ namespace ReadingIsGood.Core.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<Order> UpdateOrderAndStock(Order order, CancellationToken cancellationToken = default)
+        public async Task<Order> CreateOrderAndUpdateStockAsync(Order order, CancellationToken cancellationToken = default)
         {
             using (var transation = _repository.BeginTransaction())
             {

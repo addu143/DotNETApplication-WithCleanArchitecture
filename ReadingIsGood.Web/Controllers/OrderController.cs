@@ -64,12 +64,17 @@ namespace ReadingIsGood.Web.Controllers
                             ProductId = m.Key,
                             Quantity = m.Sum(x => x.Quantity)
                         });
-
+                    
                     List<Product> listOfSelectedProducts = new List<Product>();
+
+                    //Getting all products requested in memory
+                    var productIds = groupedRequestData.Select(x => x.ProductId).ToArray();
+                    var products = await _productService.GetByIdAsync(productIds);
+
                     foreach (var requestData in groupedRequestData)
                     {
                         //Verify product exist
-                        var product = await _productService.GetByIdAsync(requestData.ProductId);
+                        var product = products.Where(m=> m.Id == requestData.ProductId).FirstOrDefault();
                         if (product == null)
                             return BadRequest(_responseGeneric.Error("Product not exist"));
 
@@ -103,7 +108,7 @@ namespace ReadingIsGood.Web.Controllers
                     order.Total = order.OrderItems.Sum(t => t.SubTotal);
 
                     //Save to DB and also handling the Concurrency issue:
-                    await _orderService.UpdateOrderAndStock(order);
+                    await _orderService.CreateOrderAndUpdateStockAsync(order);
                     #endregion
 
                     //Logging
@@ -134,7 +139,7 @@ namespace ReadingIsGood.Web.Controllers
                 await _logService.InsertLog(LogLevel.Information, "GetCustomerOrders");
 
                 var currentUser = GetCurrentUser();
-                var orders = await _orderService.GetCustomerOrders(currentUser.Customer.Id);
+                var orders = await _orderService.GetCustomerOrdersAsync(currentUser.Customer.Id);
                 var orderMapp = _mapper.Map<List<OrderListResponse>>(orders);
                 return Ok(_responseGeneric.Success(result: orderMapp));
             }
@@ -155,7 +160,7 @@ namespace ReadingIsGood.Web.Controllers
                 await _logService.InsertLog(LogLevel.Information, "GetCustomerOrderDetail");
 
                 var currentUser = GetCurrentUser();
-                var order = await _orderService.GetCustomerOrderDetail(currentUser.Customer.Id, orderRequest.OrderId);
+                var order = await _orderService.GetCustomerOrderDetailAsync(currentUser.Customer.Id, orderRequest.OrderId);
                 var orderMapp = _mapper.Map<OrderDetailResponse>(order);
                 return Ok(_responseGeneric.Success(result: orderMapp));
             }
